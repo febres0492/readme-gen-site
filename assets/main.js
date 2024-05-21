@@ -35,7 +35,7 @@ let fallbacks = {
     project_name: 'My Project',
     github_username: 'Example123',
     email: 'Example123@gmail.com',
-    description: 'This is a description \nLorem sed voluptua voluptua sit diam lorem, clita sadipscing et nonumy vero dolore eos sit et, takimata sanctus takimata et est aliquyam et. Sea et sed consetetur ea amet sit amet at sit, consetetur ut est et et takimata lorem.', 
+    description: `This is a description \nLorem sed voluptua voluptua sit diam lorem, clita sadipscing et nonumy vero dolore eos sit et, takimata sanctus takimata et est aliquyam et. Sea et sed consetetur ea amet sit amet at sit, consetetur ut est et et takimata lorem.`, 
     features: `\n- **Features 1:** Lorem sed voluptua voluptua sit diam lorem,. \n- **Features 2:** Lorem sed voluptua voluptua sit diam lorem,. \n- **Features 3:** Lorem sed voluptua voluptua sit diam lorem,`, 
     technologies: `Technologies used: \n- **Item 1** \n- **Item 2** \n- **Item 3**`, 
     installation_commands: 'git clone https://github.com/[github_username]/[project_name].git; cd [project_name]; npm install',
@@ -81,6 +81,10 @@ function renderLicenseSection(key, license) {
     return `## License  
     \n[![License](${badge})]${link}
     \nThis project is licensed under the ${license} License - see the [LICENSE]${link} for details.
+
+    \n[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=appveyor&logoColor=white&labelColor=blue&cacheSeconds=3600)](https://example.com)
+
+    \n[![License](https://img.shields.io/badge/MIT-green?style=for-the-badge)](https://opensource.org/licenses/MIT)
     `
 }
 
@@ -151,7 +155,10 @@ function formatTitle(str){
     return str.join(' ')
 }
 
-function generateMarkdown(data) {
+function generateMarkdown(data, lineBreak) {
+    const lb = lineBreak || '\n'
+
+    data.lb = lb
 
     // deleting unnecessary data
     Object.keys(data).forEach(key => (data[key] == 'no') && delete data[key])
@@ -176,12 +183,12 @@ function generateMarkdown(data) {
             \n![screenshot](screenshot.png) 
             \n## Description
             \n${val} 
-            \nApplication is live at: https://example.com `+ '\n\n\n'
+            \nApplication is live at: https://example.com `+ `\n\n\n`
         },
 
         table_of_content: (key, val)=> {
             const links = val.reduce((acc, cur)=> acc + `\n${cur}`,'')
-            return `## Table of Content ${links}`+ '\n\n\n'
+            return `## Table of Content ${links}`+ `\n\n\n`
         },
 
         getting_started: (key, val) => `## Getting Started 
@@ -191,14 +198,14 @@ function generateMarkdown(data) {
             \n- [Node.js](https://nodejs.org/) (v14.0 or later)
             \n- [Git](https://git-scm.com/)
             \n- A text editor like [VSCode](https://code.visualstudio.com/)
-        ` + '\n\n\n',
+        ` + `\n\n\n`,
 
-        default: (key, val) => `## ${formatTitle(key)} \n${val}` + '\n\n\n',
+        default: (key, val) => `## ${formatTitle(key)} \n${val}` + `\n\n\n`,
 
         code: (key, val) => {
-            const instructions = val.instructions || 'Follow these steps to get your development environment set up: \n1. Clone the repository:'
+            const instructions = val.instructions || `Follow these steps to get your development environment set up: \n1. Clone the repository:`
             const code = val.code || 'git clone'
-            return`## ${formatTitle(key)} \n${instructions} \n\`\`\`bash ${formatCodeStr(code)} \n\`\`\` ` + '\n\n\n'
+            return`## ${formatTitle(key)} \n${instructions} \n\`\`\`bash ${formatCodeStr(code)} \n\`\`\` ` + `\n\n\n`
         },
 
         license: (key, val) => {
@@ -238,18 +245,38 @@ function S(str){
     return document.querySelectorAll(str)
 }
 
+function renderReadme(data){
+    const text = generateMarkdown(data)
+    S('#readme-content')[0].innerText = text
+}
+
+let data = [
+    'author', 'github_username', 'email', 'project_name', 'description', 'features', 'technologies',
+    'getting_started', 'installation', 'installation_commands', 'usage', 'usage_commands', 'questions',
+    'contribution_guidelines', 'contribution', 'test_instructions', 'test_commands', 'acknowledgments', 'license',
+]
+data = data.reduce((acc, cur) => {
+    acc[cur] = 'yes'
+    return acc
+}, {})
+
+renderReadme(data)
+
+
 S('#generate-btn')[0].addEventListener('click', ()=> {
-    
-    let data = [
-        'author', 'github_username', 'email', 'project_name', 'description', 'features', 'technologies',
-        'getting_started', 'installation', 'installation_commands', 'usage', 'usage_commands', 'questions',
-        'contribution_guidelines', 'contribution', 'test_instructions', 'test_commands', 'acknowledgments', 'license',
-    ]
-    data = data.reduce((acc, cur) => {
-        acc[cur] = 'yes'
-        return acc
-    }, {})
     const res = generateMarkdown(data)
     S('#readme-content')[0].innerText = res
 })
 
+S('#copy-btn')[0].addEventListener('click', ()=> {
+    const text = S('#readme-content')[0].innerText
+    navigator.clipboard.writeText(text)
+    .then(() => {
+        console.log('Text copied to clipboard')
+        S('#copy-btn')[0].innerText = 'Copied!'
+        setTimeout(()=> S('#copy-btn')[0].innerText = 'Copy', 5000)
+    })
+    .catch(err => {
+        console.error('Failed to copy text', err)
+    })
+})

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global-style.css">
     <link rel="stylesheet" href="./assets/style.css">
     <title>Readme Generator</title>
 </head>
@@ -38,12 +39,19 @@
                     
                 </div> -->
                 <div class="flex-column" style="--col:12;">
-                    <button class="btn" id="generate-btn">Generate Readme</button>
-                    <div id="readme-content" style="--bg-d:1; --p:4; --br:5px;"></div>
+                    <!-- <button class="btn" id="generate-btn">Generate Readme</button> -->
+                    <div class="box rel">
+                        <div class="btn-box abs" style="--top: 10px; --right:10px;">
+                            <!-- <span id="preview-btn" class="btn" style="--bg-d:3; --p:1; --px:2; --br:5px;">preview</span> -->
+                            <span id="copy-btn" class="btn" style="--bg-d:3; --p:1; --px:2; --br:5px;">copy</span>
+                        </div>
+                        <div id="readme-content" class="inner-shadow" style="--bg-d:1; --p:4; --br:5px;"> </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.1/dist/showdown.min.js"></script>
     <script src="./assets/main.js"></script>
 </body>
 </html>
